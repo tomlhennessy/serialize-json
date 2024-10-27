@@ -9,11 +9,10 @@ const server = http.createServer((req, res) => {
   });
 
   req.on("end", () => {
-    // Parse the body of the request as JSON if Content-Type header is
-      // application/json
-    // Parse the body of the request as x-www-form-urlencoded if Content-Type
-      // header is x-www-form-urlencoded
-    if (reqBody) {
+    if (req.headers['Content type'] === 'application/json') {
+      req.body = JSON.parse(reqBody); // convert JSON string to JS object
+      console.log(req.body); // log the parsed JSON body
+    } else if (req.headers['content-type'] === 'application/x-www-form-urlencoded') {
       req.body = reqBody
         .split("&")
         .map((keyValuePair) => keyValuePair.split("="))
@@ -32,10 +31,15 @@ const server = http.createServer((req, res) => {
       "Hello": "World!"
     };
 
-    // Return the `resBody` object as JSON in the body of the response
+    // set response headers
+    res.statusCode = 200; // http status code for OK
+    res.setHeader('Content-Type', 'application/json'); // set response type to JSON
+
+    // serialize `resBody` to JSON and send it in the response
+    res.end(JSON.stringify(resBody));
   });
 });
 
-const port = 5000;
+const port = 5001;
 
 server.listen(port, () => console.log('Server is listening on port', port));
